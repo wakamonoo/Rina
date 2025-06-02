@@ -1,5 +1,5 @@
 const CLIENT_ID = '973d808653bc42219c4d514c91e5e22b';
-const REDIRECT_URI = 'http://localhost:5500'; // Change if hosted
+const REDIRECT_URI = 'http://rina-wakamonoo.vercel.app'; // Change if hosted
 const SCOPES = [
   'streaming',
   'user-read-playback-state',
