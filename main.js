@@ -1,42 +1,46 @@
 import { YT_API_KEY } from './config.js';
 
-/* DOM refs */
+/* ───────── DOM refs ───────── */
 const status  = document.getElementById('status');
 const grid    = document.getElementById('results');
 const btnAuto = document.getElementById('modeAutoplay');
 const btnSrch = document.getElementById('modeSearch');
 const micBtn  = document.getElementById('startBtn');
 
-/* Mode state (toggled by buttons) */
+/* ───────── mode state ───────── */
 let mode = 'autoplay';
 updateButtons();
 btnAuto.onclick = () => { mode = 'autoplay'; updateButtons(); };
-btnSrch.onclick = () => { mode = 'search';  updateButtons(); };
+btnSrch.onclick = () => { mode = 'search'; updateButtons(); };
 
 function updateButtons() {
   btnAuto.classList.toggle('bg-red-600', mode === 'autoplay');
   btnAuto.classList.toggle('bg-gray-700', mode !== 'autoplay');
   btnSrch.classList.toggle('bg-red-600', mode === 'search');
-  btnSrch.classList.toggle('text-white',  mode === 'search');
+  btnSrch.classList.toggle('text-white', mode === 'search');
   btnSrch.classList.toggle('bg-gray-700', mode !== 'search');
 }
 
-/* Helper: speak with female voice preference */
-function speak(text, lang='en-US') {
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang; u.pitch = 1.4; u.rate = 1;
+/* ───────── speech synthesis helper ───────── */
+function speak(txt, lang = 'en-US') {
+  const u = new SpeechSynthesisUtterance(txt);
+  u.lang = lang;
+  u.pitch = 1.4;
+  u.rate = 1;
+
   const pick = () => {
     const v = speechSynthesis.getVoices()
       .find(v => v.lang === lang && /(female|kyoko|mizuki)/i.test(v.name));
     if (v) u.voice = v;
     speechSynthesis.speak(u);
   };
+
   speechSynthesis.getVoices().length
     ? pick()
-    : speechSynthesis.addEventListener('voiceschanged', pick, { once:true });
+    : speechSynthesis.addEventListener('voiceschanged', pick, { once: true });
 }
 
-/* Mic click -> wake listening */
+/* ───────── mic click → wake word ───────── */
 micBtn.onclick = listenWake;
 
 function listenWake() {
@@ -44,7 +48,8 @@ function listenWake() {
   if (!Rec) { status.textContent = 'SpeechRecognition not supported.'; return; }
 
   const rec = new Rec();
-  rec.lang = 'en-US'; rec.interimResults = false;
+  rec.lang = 'en-US';
+  rec.interimResults = false;
   status.textContent = 'Listening…';
 
   rec.onresult = ({ results }) => {
@@ -53,13 +58,15 @@ function listenWake() {
       speak('Hai!', 'ja-JP');
       setTimeout(listenCommand, 1100);
     } else {
-      processQuery(t);
+      dispatchQuery(t);
     }
   };
+
   rec.onerror = e => status.textContent = `Error: ${e.error}`;
   rec.start();
 }
 
+/* ───────── command listener ───────── */
 function listenCommand() {
   const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
   const rec = new Rec();
@@ -68,62 +75,86 @@ function listenCommand() {
 
   rec.onresult = ({ results }) => {
     const q = results[0][0].transcript.trim();
-    q ? processQuery(q) : status.textContent = 'No command.';
+    q ? dispatchQuery(q) : status.textContent = 'No command.';
   };
+
   rec.onerror = e => status.textContent = `Error: ${e.error}`;
   rec.start();
 }
 
-/* Main dispatcher */
-function processQuery(q) {
+/* ───────── Dispatcher ───────── */
+function dispatchQuery(q) {
   grid.innerHTML = '';
   status.textContent = `Searching “${q}”…`;
   speak(`Here are the results for ${q}`, 'en-US');
-  mode === 'autoplay' ? autoplay(q) : showGrid(q);
+  mode === 'autoplay' ? autoplay(q) : listResults(q);
 }
 
-/* Fetch helpers */
+/* ───────── Helpers ───────── */
 const SEARCH = 'https://www.googleapis.com/youtube/v3/search';
-const mobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
-const j = async u => (await fetch(u)).json();
+const isAndroid = /android/i.test(navigator.userAgent);
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const json = async u => (await fetch(u)).json();
 
-/* Autoplay mode */
+/* Build mobile deep-link */
+const deepLink = id => {
+  if (isAndroid)
+    return `intent://www.youtube.com/watch?v=${id}#Intent;package=com.google.android.youtube;scheme=https;end`;
+  if (isIOS)
+    return `youtube://www.youtube.com/watch?v=${id}`;
+  return `https://www.youtube.com/watch?v=${id}&autoplay=1`;
+};
+
+/* ───────── Autoplay mode ───────── */
 async function autoplay(q) {
   try {
-    const p = new URLSearchParams({ part:'snippet', maxResults:1, q, type:'video', key:YT_API_KEY });
-    const v = (await j(`${SEARCH}?${p}`)).items?.[0]?.id?.videoId;
-    if (!v) { status.textContent = 'No match.'; return; }
-    const url = mobile
-      ? `https://www.youtube.com/watch?v=${v}`
-      : `https://www.youtube.com/watch?v=${v}&autoplay=1`;
+    status.textContent = 'Fetching results…';
+    const p = new URLSearchParams({ part: 'snippet', maxResults: 1, q, type: 'video', key: YT_API_KEY });
+    const id = (await json(`${SEARCH}?${p}`)).items?.[0]?.id?.videoId;
+
+    if (!id) {
+      status.textContent = 'No match.';
+      return;
+    }
+
+    const url = deepLink(id);
     window.open(url, '_blank');
     status.textContent = 'Opened in new tab.';
-  } catch { status.textContent = 'Search failed.'; }
+  } catch {
+    status.textContent = 'Search failed.';
+  }
 }
 
-/* Grid mode */
-async function showGrid(q) {
+/* ───────── Search-only mode ───────── */
+async function listResults(q) {
   try {
-    const p = new URLSearchParams({ part:'snippet', maxResults:8, q, type:'video', key:YT_API_KEY });
-    const data = await j(`${SEARCH}?${p}`);
-    if (!data.items?.length) { status.textContent = 'No results.'; return; }
+    status.textContent = 'Fetching results…';
+    const p = new URLSearchParams({ part: 'snippet', maxResults: 8, q, type: 'video', key: YT_API_KEY });
+    const data = await json(`${SEARCH}?${p}`);
 
-    data.items.forEach((it,i) => {
-      const id = it.id.videoId;
+    if (!data.items?.length) {
+      status.textContent = 'No results.';
+      return;
+    }
+
+    data.items.forEach((it, i) => {
+      const { videoId: id } = it.id;
       const { title, thumbnails } = it.snippet;
 
-      const card = document.createElement('a');
-      card.href = `https://www.youtube.com/watch?v=${id}`;
-      card.target = '_blank';
-      card.className =
-        'bg-[#181818] rounded-lg overflow-hidden transform transition hover:scale-[1.03]';
-      card.style.animation = `fadeIn .4s ease ${i*70}ms forwards`;
+      const a = document.createElement('a');
+      a.href = deepLink(id);
+      a.target = '_blank';
+      a.className = 'bg-[#181818] rounded-lg overflow-hidden transform transition hover:scale-[1.03]';
+      a.style.animation = `fadeIn .4s ease ${i * 70}ms forwards`;
 
-      card.innerHTML = `
+      a.innerHTML = `
         <img src="${thumbnails.high.url}" alt="${title}" class="w-full object-cover">
         <div class="p-3 text-xs text-gray-200">${title}</div>`;
-      grid.appendChild(card);
+      grid.appendChild(a);
     });
+
     status.textContent = 'Results ready.';
-  } catch { status.textContent = 'Search failed.'; }
+  } catch {
+    status.textContent = 'Search failed.';
+  }
 }
