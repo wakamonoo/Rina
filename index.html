@@ -2,19 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rina – Voice Music Assistant</title>
-
-  <!-- Tailwind via CDN -->
+  <title>Rina – Voice YouTube Assistant</title>
+  <script src="main.js" defer></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-  <!-- Main logic (ES module) -->
-  <script type="module" src="main.js" defer></script>
 </head>
-
-<body class="bg-white text-gray-800 flex items-center justify-center h-screen flex-col space-y-6">
-  <h1 class="text-4xl font-bold text-red-500">Rina 🎧</h1>
-  <p class="text-lg text-center max-w-md">Speak your music wish. Rina listens and opens it in Spotify.</p>
-  <p id="status" class="text-sm text-gray-500 italic">Connecting…</p>
+<body class="bg-white text-gray-800 flex flex-col items-center justify-center h-screen space-y-6">
+  <h1 class="text-4xl font-bold text-red-500">Rina 🎤🎬</h1>
+  <p class="text-center">Say a song or video, and Rina will find it on YouTube and play it for you!</p>
+  <button id="startBtn" class="bg-red-500 text-white px-4 py-2 rounded shadow">🎙 Start Listening</button>
+  <p id="status" class="text-sm italic text-gray-500">Idle</p>
+  <div id="player" class="w-full max-w-xl aspect-video"></div>
 </body>
 </html>
