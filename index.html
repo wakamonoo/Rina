@@ -5,21 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rina – Voice Music Assistant</title>
 
-  <!-- Tailwind (CDN) -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <!-- Tailwind via CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
-  <!-- Spotify Web Playback SDK -->
-  <script src="https://sdk.scdn.co/spotify-player.js"></script>
-
-  <!-- Main logic -->
-  <script type="module" src="/main.js" defer></script>
+  <!-- Main logic (ES module) -->
+  <script type="module" src="main.js" defer></script>
 </head>
 
-<body class="bg-white flex items-center justify-center min-h-screen text-center px-4">
-  <div class="max-w-lg">
-    <h1 class="text-4xl font-bold mb-4">🎧 Rina</h1>
-    <p class="text-lg mb-6">Speak naturally — Rina plays your music on Spotify.</p>
-    <div id="status" class="text-green-600 font-semibold text-lg">🔄 Connecting…</div>
-  </div>
+<body class="bg-white text-gray-800 flex items-center justify-center h-screen flex-col space-y-6">
+  <h1 class="text-4xl font-bold text-red-500">Rina 🎧</h1>
+  <p class="text-lg text-center max-w-md">Speak your music wish. Rina listens and opens it in Spotify.</p>
+  <p id="status" class="text-sm text-gray-500 italic">Connecting…</p>
 </body>
 </html>
