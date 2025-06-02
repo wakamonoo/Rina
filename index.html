@@ -1,71 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rina • YouTube Voice Assistant</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rina • Voice-controlled YouTube</title>
 
-  <!-- Tailwind CDN (JIT, arbitrary values allowed) -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
-  <!-- Feather icons -->
-  <script src="https://unpkg.com/feather-icons"></script>
-  <script type="module" src="main.js" defer></script>
+<style>
+:root{--primary:#ff0000;--dark:#0f0f0f;--darker:#0a0a0a;--light:#f1f1f1}
+body{background:linear-gradient(135deg,var(--darker),var(--dark));min-height:100vh;color:var(--light);font-family:'Poppins',sans-serif}
+.glow{text-shadow:0 0 10px rgba(255,0,0,.7)}
+.voice-wave span{animation:wave 1.2s infinite ease-in-out}
+@keyframes wave{0%,60%,100%{transform:scaleY(.4)}30%{transform:scaleY(1)}}
+.status-pill{animation:pulse 2s infinite}
+@keyframes pulse{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
+</style>
 </head>
 
-<body
-  class="min-h-screen flex flex-col items-center px-4 py-8 text-gray-300
-         bg-gradient-to-br from-black via-gray-900 to-[#0f0f0f]"
->
-
-  <!-- Heading -->
-  <header class="text-center select-none mb-10">
-    <h1 class="text-5xl font-extrabold tracking-wide text-transparent bg-clip-text
-               bg-gradient-to-r from-red-600 via-red-400 to-red-600">
-      Rina<span class="text-transparent">•</span>
-    </h1>
-    <p class="text-sm text-gray-400 mt-1">
-      Say “Rina-chan” or speak a command
-    </p>
+<body class="min-h-screen flex flex-col items-center p-4">
+<div class="max-w-md w-full mt-10">
+  <header class="text-center mb-8">
+    <h1 class="text-4xl font-bold glow">RINA</h1>
+    <p class="text-gray-400 mt-2">Voice-controlled YouTube</p>
   </header>
 
-  <!-- Mode pills -->
-  <div class="flex gap-4 mb-8">
-    <button id="modeAutoplay"
-            class="inline-flex items-center gap-2 px-6 py-2 rounded-full font-semibold
-                   bg-red-600 text-white shadow-[0_0_12px_rgba(255,0,0,0.45)]
-                   hover:shadow-[0_0_16px_rgba(255,0,0,0.6)]
-                   transition">
-      <i data-feather="zap" class="w-4 h-4"></i><span>Autoplay</span>
-    </button>
-
-    <button id="modeSearch"
-            class="inline-flex items-center gap-2 px-6 py-2 rounded-full font-semibold
-                   bg-gray-700 text-gray-300 hover:bg-gray-600 transition">
-      <i data-feather="search" class="w-4 h-4"></i><span>Search-only</span>
-    </button>
+  <div class="bg-gray-900/80 rounded-xl p-6 mb-6 border border-gray-800">
+    <div class="flex items-center justify-center gap-3 mb-4">
+      <div class="voice-wave h-10">
+        <span class="w-1 h-3 bg-red-500 inline-block mx-0.5"></span><span class="w-1 h-3 bg-red-500 inline-block mx-0.5"></span><span class="w-1 h-3 bg-red-500 inline-block mx-0.5"></span><span class="w-1 h-3 bg-red-500 inline-block mx-0.5"></span><span class="w-1 h-3 bg-red-500 inline-block mx-0.5"></span>
+      </div>
+      <span class="status-pill bg-red-600 text-white text-sm py-1 px-3 rounded-full">Listening</span>
+    </div>
+    <p id="status"      class="text-center text-gray-300">Waiting for a command…</p>
+    <p id="transcript"  class="text-xs text-center text-gray-500 mt-2 italic"></p>
   </div>
 
-  <!-- Mic -->
-  <button id="startBtn"
-          class="relative w-24 h-24 rounded-full bg-red-600 flex items-center justify-center
-                 shadow-[0_0_25px_rgba(255,0,0,0.45)] hover:scale-105 active:scale-95 transition">
-    <i data-feather="mic" class="w-9 h-9 text-white"></i>
-    <!-- neon ring -->
-    <span class="absolute inset-0 rounded-full
-                 ring-2 ring-red-500/50 animate-ping"></span>
-  </button>
+  <div class="bg-gray-900/80 rounded-xl p-4 mb-6 border border-gray-800">
+    <h2 class="text-lg font-medium mb-2">Current Playback</h2>
+    <div id="nowPlaying" class="text-gray-400 italic">No active playback</div>
+    <div class="flex gap-2 mt-3">
+      <button id="openBtn"  class="bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded text-sm">Open Player Tab</button>
+      <button id="closeBtn" class="bg-gray-700 hover:bg-gray-600 text-white py-1 px-3 rounded text-sm">Close Player</button>
+    </div>
+  </div>
+</div>
 
-  <!-- Status -->
-  <p id="status" class="mt-6 mb-10 text-center text-sm text-gray-400 italic max-w-md">
-    Idle…
-  </p>
+<script>
+/* ---------- CONFIG ---------- */
+const API_KEY       = 'AIzaSyDtGjgcEulNnB62nJxjdiyDavQ8BbLj42E';            // ← put your key here
+const PLAYER_ORIGIN = 'https://www.youtube.com';
 
-  <!-- Results -->
-  <section id="results"
-           class="grid gap-6 w-full max-w-6xl sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-  </section>
+/* ---------- STATE ---------- */
+let ytWin  = null;
+let volume = 50;
+let rec    = null;
 
-  <script>feather.replace();</script>
+/* ---------- DOM ---------- */
+const statusEl     = document.getElementById('status');
+const transcriptEl = document.getElementById('transcript');
+const nowPlayingEl = document.getElementById('nowPlaying');
+document.getElementById('openBtn').onclick  = () => ensureYT();
+document.getElementById('closeBtn').onclick = () => { if(ytWin && !ytWin.closed) ytWin.close(); ytWin=null; nowPlayingEl.textContent='No active playback'; };
+
+/* ---------- SPEECH RECOGNITION ---------- */
+initSpeech();
+function initSpeech(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ statusEl.textContent='Speech-API not supported'; return; }
+
+  rec = new SR();
+  rec.lang='en-US';
+  rec.continuous=true;
+  rec.interimResults=true;
+
+  rec.onresult = e=>{
+    const last = e.results[e.results.length-1];
+    if(!last.isFinal) return;
+    const phrase = last[0].transcript.trim().toLowerCase();
+    transcriptEl.textContent = phrase;
+    parseCommand(phrase);
+    setTimeout(()=>transcriptEl.textContent='',700);
+  };
+  rec.onerror = e => statusEl.textContent='Mic error: '+e.error;
+  rec.onend   = ()=>rec.start();
+  rec.start();
+}
+
+/* ---------- COMMAND PARSING ---------- */
+function parseCommand(raw){
+  statusEl.textContent = `Heard: “${raw}”`;
+  const cmd = raw.replace(/^rina\b/,'').trim();     // optional wake-word removed
+
+  /* helper to test word presence */
+  const has = (w) => new RegExp(`\\b${w}\\b`).test(cmd);
+
+  /* core playback controls */
+  if(has('pause'))               return send('pauseVideo');
+  if((has('resume')||has('play')) && !cmd.startsWith('play ')) return send('playVideo');
+  if(has('next'))                return send('nextVideo');
+  if(has('previous')||has('back')) return send('previousVideo');
+  if(has('mute'))                return send('mute');
+  if(has('unmute'))              return send('unMute');
+  if(has('volume') && has('up'))   { volume=Math.min(volume+10,100); return send('setVolume',[volume]); }
+  if(has('volume') && has('down')) { volume=Math.max(volume-10,0);   return send('setVolume',[volume]); }
+
+  /* ---------- NEW: PLAYBACK SPEED CONTROL ---------- */
+  // matches commands like "speed 0.75", "playback speed one point five", etc.
+  const speedMatch = cmd.match(/(?:speed|playback speed)\s+([\d.]+|quarter|half|normal)/);
+  if(speedMatch){
+    const rate = speedValue(speedMatch[1]);
+    if(rate) return send('setPlaybackRate',[rate]);
+  }
+  // legacy x-notation (e.g., "1.25x") still works
+  const xMatch = cmd.match(/([\d.]+)\s*x/);
+  if(xMatch){
+    const rate = parseFloat(xMatch[1]);
+    if(!isNaN(rate)) return send('setPlaybackRate',[rate]);
+  }
+
+  /* ---------- NEW: CAPTIONS ON / OFF ---------- */
+  if(has('caption')||has('captions')){
+    if(has('off')||has('disable')) return send('unloadModule',['captions']);
+    if(has('on') ||has('enable'))  return send('loadModule',['captions']);
+  }
+
+  /* ---------- NEW: FULLSCREEN TOGGLE ---------- */
+  if(has('fullscreen')||has('full screen')){
+    if(has('exit')||has('leave')||has('off')||has('normal')) return exitFullScreen();
+    return enterFullScreen();
+  }
+
+  /* ---------- SEARCH / PLAY COMMANDS ---------- */
+  if(cmd.startsWith('play ')) return searchPlay(cmd.slice(5).trim());
+
+  // default: treat entire phrase as search query
+  searchPlay(cmd);
+}
+
+/* speed alias helper */
+function speedValue(val){
+  const map={
+    '0.25':0.25,'.25':0.25,'25':0.25,'quarter':0.25,
+    '0.5':0.5,'.5':0.5,'half':0.5,
+    '0.75':0.75,'.75':0.75,
+    'normal':1,'1':1,
+    '1.25':1.25,'125':1.25,
+    '1.5':1.5,'150':1.5,
+    '1.75':1.75,'175':1.75,
+    '2':2,'2.0':2
+  };
+  return map[val] ?? null;
+}
+
+/* ---------- FULLSCREEN HELPERS ---------- */
+function enterFullScreen(){
+  if(ytWin && !ytWin.closed){
+    try{
+      ytWin.moveTo(0,0);
+      ytWin.resizeTo(screen.availWidth,screen.availHeight);
+    }catch(e){/* pop-up blockers */}
+  }
+}
+function exitFullScreen(){
+  if(ytWin && !ytWin.closed){
+    try{
+      const w=1280,h=720;
+      ytWin.resizeTo(w,h);
+      ytWin.moveTo((screen.availWidth-w)/2,(screen.availHeight-h)/2);
+    }catch(e){}
+  }
+}
+
+/* ---------- YOUTUBE TAB HELPERS ---------- */
+function ensureYT(url){
+  if(ytWin && !ytWin.closed){
+    if(url) ytWin.location.replace(url);
+    ytWin.focus(); return ytWin;
+  }
+  ytWin = window.open(url||'about:blank','rina_youtube_tab');
+  // let the player know we are ready for postMessage traffic
+  setTimeout(()=>ytWin?.postMessage('{"event":"listening","id":""}', PLAYER_ORIGIN),800);
+  return ytWin;
+}
+function send(func,args=[]){
+  if(ytWin && !ytWin.closed){
+    ytWin.postMessage(JSON.stringify({event:'command',func,args,id:''}), PLAYER_ORIGIN);
+  }
+}
+
+/* ---------- SEARCH & AUTOPLAY ---------- */
+async function searchPlay(query){
+  statusEl.textContent='Searching…';
+  try{
+    const rsp = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&maxResults=5&q=${encodeURIComponent(query)}&key=${API_KEY}`);
+    const items = (await rsp.json()).items || [];
+    for(const it of items){
+      const vid = it.id.videoId;
+      /* double-check embeddable status (rare edge-case) */
+      const chk = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=status&id=${vid}&key=${API_KEY}`);
+      if(!(await chk.json()).items?.[0]?.status?.embeddable) continue;
+
+      nowPlayingEl.textContent = `Playing: ${it.snippet.title}`;
+      const url = `https://www.youtube.com/embed/${vid}?autoplay=1&mute=1&enablejsapi=1&origin=${location.origin}`;
+      ensureYT(url);
+      setTimeout(()=>send('unMute'),1800);
+      return;
+    }
+    statusEl.textContent='No embeddable results found.';
+    nowPlayingEl.textContent='No playable video.';
+  }catch(err){
+    console.error(err);
+    statusEl.textContent='Search error / API quota';
+    nowPlayingEl.textContent='Search failed.';
+  }
+}
+</script>
 </body>
 </html>
