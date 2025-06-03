@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Rina",
+  "version": "1.0",
+  "description": "Continuous Voice Control for YouTube",
+  "permissions": ["storage", "tabs", "activeTab"],
+  "host_permissions": ["*://*.youtube.com/*", "*://www.youtube.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*", "*://www.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "action": {
+    "default_title": "Rina Voice Control",
+    "default_icon": "icon.png"
+  }
+}
