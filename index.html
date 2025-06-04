@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rina · Manual</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="images/icon.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body
+    class="bg-gradient-to-tr from-indigo-900 via-gray-900 to-blac text-white min-h-screen flex items-center justify-center px-4 py-8"
+  >
+    <div
+      class="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl p-8 space-y-6"
+    >
+      <!-- Header -->
+      <div class="flex flex-col items-center text-center gap-3">
+        <h1
+          class="text-3xl md:text-4xl font-extrabold text-red-600 flex items-center gap-0"
+        >
+          Rina Welcomes You<span
+            ><img src="images/icon.png" class="ml-0 w-20 h-auto" alt="title"
+          /></span>
+        </h1>
+        <p class="text-gray-300">
+          A futuristic voice assistant extension for YouTube.
+        </p>
+      </div>
+
+      <!-- Download -->
+      <div class="text-center">
+        <p class="text-gray-400">
+          Download the extension and follow the steps to get started.
+        </p>
+        <a
+          href="Rina.zip"
+          download
+          class="mt-4 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 transition px-5 py-2 rounded-lg font-medium shadow"
+        >
+          <i class="fas fa-download"></i>
+          Download Extension
+        </a>
+      </div>
+
+      <!-- Instructions -->
+      <div class="text-sm md:text-base text-gray-300">
+        <ol class="list-decimal pl-5 space-y-1">
+          <li>Unzip the <strong>Rina.zip</strong> file to a folder.</li>
+          <li>
+            Go to <code class="text-red-400">chrome://extensions</code> or
+            <code class="text-red-400">edge://extensions</code>.
+          </li>
+          <li>Enable <strong>Developer mode</strong>.</li>
+          <li>Click <strong>Load unpacked</strong>.</li>
+          <li>
+            Select the folder containing
+            <code class="text-red-400">manifest.json</code>.
+          </li>
+          <li>The extension should now be active.</li>
+          <li>Use voice commands on any YouTube tab.</li>
+        </ol>
+      </div>
+
+      <!-- Divider -->
+      <div class="border-t border-gray-700 my-4"></div>
+
+      <!-- Commands -->
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-3">
+          <i class="fas fa-microphone-alt text-red-500 mr-2"></i>
+          Available Commands
+        </h2>
+
+        <div class="space-y-4 text-gray-300">
+          <div>
+            <h3 class="font-semibold text-lg text-white">
+              <i class="fas fa-play-circle text-red-400 mr-2"></i> Playback
+            </h3>
+            <ul class="list-disc list-inside pl-4">
+              <li>"play video", "pause video", "stop video"</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-lg text-white">
+              <i class="fas fa-volume-up text-red-400 mr-2"></i> Volume
+            </h3>
+            <ul class="list-disc list-inside pl-4">
+              <li>"volume up", "volume down"</li>
+              <li>"mute", "unmute"</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-lg text-white">
+              <i class="fas fa-forward text-red-400 mr-2"></i> Navigation
+            </h3>
+            <ul class="list-disc list-inside pl-4">
+              <li>"skip", "forward", "back", "rewind"</li>
+              <li>"jump [time]" (e.g., "jump to 2:30")</li>
+              <li>"next", "previous"</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-lg text-white">
+              <i class="fas fa-tachometer-alt text-red-400 mr-2"></i> Speed
+            </h3>
+            <ul class="list-disc list-inside pl-4">
+              <li>"faster", "slower", "speed 1.5", "speed 2"</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-lg text-white">
+              <i class="fas fa-expand text-red-400 mr-2"></i> Fullscreen
+            </h3>
+            <ul class="list-disc list-inside pl-4">
+              <li>"fullscreen", "exit fullscreen"</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-lg text-white">
+              <i class="fas fa-search text-red-400 mr-2"></i> Search
+            </h3>
+            <ul class="list-disc list-inside pl-4">
+              <li>"search [query]" (e.g., "search for trailers")</li>
+              <li>"play [query]" (e.g., "play lofi music")</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="text-xs text-gray-500 mt-4 italic">
+          * Commands are case-insensitive and designed to work on YouTube tabs.
+        </p>
+        <div class="mt-4 flex items-center gap-2 text-gray-500">
+          <p>Created by wakamonoo</p>
+          <a href="https://jovenbataller21.vercel.app">
+            <img src="images/logo.png" class="w-14 h-auto" alt="logo-wakamonoo">
+          </a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
