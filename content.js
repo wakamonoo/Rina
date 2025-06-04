@@ -4,7 +4,7 @@ const RinaVoiceControl = {
   micButton: null,
   feedback: null,
   lastCommandTime: 0,
-  isInitialized: false, 
+  isInitialized: false,
 
   //──────────────── Initialization and Lifecycle
   init: async function () {
@@ -49,7 +49,7 @@ const RinaVoiceControl = {
       bottom: "20px",
       right: "20px",
       zIndex: "10000",
-      backgroundColor: "#FF0000", 
+      backgroundColor: "#FF0000",
       borderRadius: "50%",
       width: "50px",
       height: "50px",
@@ -77,7 +77,7 @@ const RinaVoiceControl = {
       fontSize: "14px",
       maxWidth: "300px",
       textAlign: "center",
-      display: "none", 
+      display: "none",
     });
     document.body.appendChild(this.feedback);
     this.micButton.addEventListener("click", this.toggleListening.bind(this));
@@ -95,9 +95,9 @@ const RinaVoiceControl = {
     }
 
     this.recognition = new webkitSpeechRecognition();
-    this.recognition.continuous = true; 
-    this.recognition.interimResults = false; 
-    this.recognition.lang = "en-US"; 
+    this.recognition.continuous = true;
+    this.recognition.interimResults = false;
+    this.recognition.lang = "en-US";
     this.recognition.onresult = (event) => {
       const transcript =
         event.results[event.results.length - 1][0].transcript.toLowerCase();
@@ -158,21 +158,21 @@ const RinaVoiceControl = {
       if (this.isListening) {
         setTimeout(() => {
           try {
-            this.recognition.start(); 
+            this.recognition.start();
           } catch (e) {
             console.warn("Recognition restart failed in onend, retrying...", e);
             setTimeout(() => {
               if (this.isListening) this.recognition.start();
             }, 1000);
           }
-        }, 200); 
+        }, 200);
       }
     };
 
     this.recognition.onspeechend = () => {
       if (this.isListening) {
-        this.recognition.stop(); 
-        this.recognition.start(); 
+        this.recognition.stop();
+        this.recognition.start();
       }
     };
   },
@@ -187,46 +187,46 @@ const RinaVoiceControl = {
   },
 
   startListening: function () {
-    if (this.isListening) return; 
+    if (this.isListening) return;
 
     try {
-      this.recognition.start(); 
-      this.isListening = true; 
-      this.micButton.style.backgroundColor = "#4285F4"; 
-      this.micButton.classList.add('listening');
-      this.showFeedback("Listening..."); 
-      chrome.storage.local.set({ rinaIsListening: true }); 
+      this.recognition.start();
+      this.isListening = true;
+      this.micButton.style.backgroundColor = "#4285F4";
+      this.micButton.classList.add("listening");
+      this.showFeedback("Listening...");
+      chrome.storage.local.set({ rinaIsListening: true });
     } catch (e) {
       this.showFeedback(
         "Speech recognition failed to start. Please check microphone permissions.",
         true
       );
       console.error("Error starting recognition:", e);
-      this.isListening = false; 
-      this.micButton.style.backgroundColor = "#FF0000"; 
-      chrome.storage.local.set({ rinaIsListening: false }); 
+      this.isListening = false;
+      this.micButton.style.backgroundColor = "#FF0000";
+      chrome.storage.local.set({ rinaIsListening: false });
     }
   },
 
   stopListening: function () {
-    if (!this.isListening) return; 
+    if (!this.isListening) return;
 
     if (this.recognition) {
       this.recognition.stop();
     }
-    this.isListening = false; 
-    this.micButton.style.backgroundColor = "#FF0000"; 
-    this.micButton.classList.remove('listening');
+    this.isListening = false;
+    this.micButton.style.backgroundColor = "#FF0000";
+    this.micButton.classList.remove("listening");
     this.feedback.style.display = "none";
-    chrome.storage.local.set({ rinaIsListening: false }); 
+    chrome.storage.local.set({ rinaIsListening: false });
   },
 
   //──────────────── Feedback Display
   showFeedback: function (message, isError = false) {
     this.feedback.textContent = message;
     this.feedback.style.backgroundColor = isError
-      ? "#cc0000" 
-      : "rgba(0,0,0,0.7)"; 
+      ? "#cc0000"
+      : "rgba(0,0,0,0.7)";
     this.feedback.style.display = "block";
     if (!isError) {
       clearTimeout(this.feedbackTimeout);
@@ -238,14 +238,28 @@ const RinaVoiceControl = {
 
   //──────────────── Command Processing
   processCommand: function (command) {
-    if (command.includes("search") || command.includes("play")) {
-      const match = command.match(/(?:search|play)\s+(.+)/);
-      if (match && match[1]) {
-        this.handleSearchCommand(match[1]);
-        return; 
+    const wakeWords = ["rina-chan", "rina", "hey rina", , "hey", , "yo", "hey rena", "rena"];
+    let actualCommand = null;
+    for (const wakeWord of wakeWords) {
+      if (command.startsWith(wakeWord)) {
+        actualCommand = command.substring(wakeWord.length).trim();
+        break; 
       }
     }
-    this.handlePlayerCommands(command);
+    if (actualCommand === null) {
+      this.showFeedback("Please say 'Hey, Rina-chan!' to get my attention.", false);
+      return;
+    }
+
+    this.showFeedback(`Command for Rina: "${actualCommand}"`); 
+    if (actualCommand.includes("search") || actualCommand.includes("play")) {
+      const match = actualCommand.match(/(?:search|play)\s+(.+)/);
+      if (match && match[1]) {
+        this.handleSearchCommand(match[1]);
+        return;
+      }
+    }
+    this.handlePlayerCommands(actualCommand);
   },
 
   //──────────────── Time Parsing Helpers
@@ -317,16 +331,14 @@ const RinaVoiceControl = {
     ) {
       video.play();
       this.showFeedback("Playing video.");
-    }
-    else if (
+    } else if (
       command.includes("pause video") ||
       (command.includes("pause") && !video.paused) ||
       command.includes("stop video")
     ) {
       video.pause();
       this.showFeedback("Pausing video.");
-    }
-    else if (
+    } else if (
       command.includes("fullscreen") ||
       command.includes("full screen")
     ) {
@@ -339,8 +351,7 @@ const RinaVoiceControl = {
           this.showFeedback("Already in fullscreen.");
         }
       }
-    }
-    else if (
+    } else if (
       command.includes("unmute") ||
       command.includes("sound on") ||
       command.includes("turn on sound")
@@ -372,8 +383,7 @@ const RinaVoiceControl = {
     } else if (command.includes("back") || command.includes("rewind")) {
       video.currentTime -= 10;
       this.showFeedback("Rewound 10 seconds.");
-    }
-    else if (
+    } else if (
       command.includes("go to ") ||
       command.includes("skip to ") ||
       command.includes("jump to ")
@@ -439,8 +449,8 @@ const RinaVoiceControl = {
         this.recognition.stop();
       }
       setTimeout(() => {
-        this.isInitialized = false; 
-        this.init(); 
+        this.isInitialized = false;
+        this.init();
       }, 500);
     });
   },
@@ -466,10 +476,10 @@ const RinaVoiceControl = {
           if (link) {
             link.click();
             window.location.hash = "autoplayed";
-            break; 
+            break;
           }
         }
-      }, 2000); 
+      }, 2000);
     }
   },
 };
