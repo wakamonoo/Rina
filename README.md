@@ -20,6 +20,11 @@
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 
+---
+
+## 🚀 Try It Out
+
+Visit the live demo at [rina-wakamonoo.vercel.app](https://rina-wakamonoo.vercel.app) :contentReference[oaicite:1]{index=1}
 
 ---
 
