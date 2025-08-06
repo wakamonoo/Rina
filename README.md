@@ -1,33 +1,32 @@
 # 🎙 Rina – YouTube Voice Assistant Extension
 
-**Rina** is a browser extension that enhances your YouTube experience—letting you control tabs, playback, and navigation using voice commands.
+**Rina** is a lightweight browser extension that enhances your YouTube experience by allowing you to control tabs, playback, and volume using voice commands—no clicks needed.
 
 ---
 
 ## 🔍 Features
 
-- 🎮 **Voice‑controlled tab navigation**: move between video tabs hands‑free
-- ▶️ **Play/Pause** and **Skip video** via voice
-- 🔈 **Volume control** using speech commands
-- 🧠 Speech recognition powered by browser APIs (built‑in)
-- 🚫 Minimal setup—no external services or auth
+- 🎤 **Voice-controlled tab navigation**
+- ▶️ **Play/Pause** YouTube videos with your voice
+- 🔊 **Volume up/down** using simple commands
+- 🔄 **Switch between video tabs** hands-free
+- 🧠 **No external API** – powered by your browser's built-in speech recognition
 
 ---
 
 ## 🛠️ Built With
 
-| Technology      | Purpose                            |
-|-----------------|------------------------------------|
-| ✅ **JavaScript**      | Core logic, speech recognition handlers   |
-| 🎫 **Manifest v3 API** | Browser extension structure and permissions |
-| 🌐 **HTML & CSS**      | Popup UI and configuration pages          |
-| 🎙 **SpeechRecognition API** | Voice command processing (Chrome/Firefox compatible) |
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![Google Chrome](https://img.shields.io/badge/Chrome-4285F4?style=for-the-badge&logo=GoogleChrome&logoColor=white)
+![Firefox](https://img.shields.io/badge/Firefox-B9382D?style=for-the-badge&logo=FirefoxBrowser&logoColor=white)
 
 ---
 
 ## ⚙️ Installation (Developer Mode)
 
-1. Clone the repo:
+1. Clone this repository:
    ```bash
    git clone https://github.com/wakamonoo/Rina.git
    cd Rina
